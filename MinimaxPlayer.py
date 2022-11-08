@@ -67,9 +67,17 @@ class MinimaxPlayer(Konane, Player):
                 
     # 
     def eval(self, board):
+        count = 0
+        for row in range(self.size):
+            for col in range(self.size):
+                # Check left (Can we go left?)
+                if row > 2 and board[row - 1][col] != '.' and board[row - 1][col] == self.opponent(self.side):
+                    count += 1
+                # Check right
+                    
         # We don't care what this does yet, just make it eval something as a test
+        # Having pieces on the board that still have valid moves
         return random.randint(0, 9)
-
 
 # game = Konane(8) 
 # game.playOneGame(RandomPlayer(8), RandomPlayer(8), 1)
