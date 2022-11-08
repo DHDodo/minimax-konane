@@ -43,7 +43,7 @@ class MinimaxPlayer(Konane, Player):
                 value = min(value, self.minimax(self.nextBoard(node, side, move), self.side, depth - 1, alpha, beta, True))
                 if value <= alpha:
                     break # alpha cutoff
-                beta = min(alpha, value)
+                beta = min(beta, value)
             return value
 
     def getMove(self, board):
