@@ -19,9 +19,11 @@ class MinimaxPlayer(Konane, Player):
     def minimax(self, node, side, depth, alpha, beta, isMaximizingPlayer):
         allValidMoves = self.generateMoves(node, side)
         # If depth is zero or we are the deepest in the tree, get heuristic
-        if depth == 0 or len(allValidMoves) == 0:
+        if depth == 0:
             # return the heuristic of this node
             return self.eval(node)
+        if len(allValidMoves) == 0:
+            return float("-inf") if isMaximizingPlayer else float("inf")
         if isMaximizingPlayer:
             value = float("-inf")
             # get possible moves for the node 
@@ -56,9 +58,9 @@ class MinimaxPlayer(Konane, Player):
             # Loop through all possible moves for our maximizer
             for move in moves:
                 # Calculate the weight of the move based on what our minimizing opponent will do
-                moveWeight = self.minimax(self.nextBoard(board, self.side, move), self.opponent(self.side), self.limit, float("-inf"), float("inf"), False)
+                moveWeight = self.minimax(self.nextBoard(board, self.side, move), self.opponent(self.side), self.limit - 1, bestMove[0], float("inf"), False)
                 # Replace the best move if it obtains a higher score
-                if (moveWeight >= bestMove[0]):
+                if (moveWeight > bestMove[0]):
                     bestMove[0] = moveWeight
                     bestMove[1] = move
             return bestMove[1]
@@ -69,6 +71,6 @@ class MinimaxPlayer(Konane, Player):
         return random.randint(0, 9)
 
 
-game = Konane(8)
+# game = Konane(8) 
 # game.playOneGame(RandomPlayer(8), RandomPlayer(8), 1)
-game.playNGames(2, MinimaxPlayer(8, 2), MinimaxPlayer(8, 1), 0)
+# game.playNGames(2, MinimaxPlayer(8, 2), MinimaxPlayer(8, 1), 0)
