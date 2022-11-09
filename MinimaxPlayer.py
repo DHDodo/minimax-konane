@@ -14,19 +14,22 @@ class MinimaxPlayer(Konane, Player):
         self.side = side
         self.name = "Super Minimax Deluxe"
 
-    # The initial call will be for the maximizing player
-    # Node is a board
+    # Performs alpha-beta pruning to determine the most optimal board for a given player.
+    # Node refers to a board
     def minimax(self, node, side, depth, alpha, beta, isMaximizingPlayer):
         allValidMoves = self.generateMoves(node, side)
-        # If depth is zero or we are the deepest in the tree, get heuristic
-        if depth == 0:
-            # return the heuristic of this node
-            return self.eval(node)
+        # When we reach a point with no more valid moves,
+        # don't return heuristic, instead indicate win/loss
         if len(allValidMoves) == 0:
             return float("-inf") if isMaximizingPlayer else float("inf")
+        # Get heuristic once we are at our depth
+        if depth == 0:
+            return self.eval(node)
+
+        # Alpha-beta pruning algorithm (fail-hard)
         if isMaximizingPlayer:
             value = float("-inf")
-            # get possible moves for the node 
+            # Get possible moves for the node 
             # Value = the max b/w value and a recursive call to the alpha beta:
             for move in allValidMoves:
                 value = max(value, self.minimax(self.nextBoard(node, side, move), self.opponent(self.side), depth - 1, alpha, beta, False))
@@ -37,7 +40,7 @@ class MinimaxPlayer(Konane, Player):
         # We are the minimizing player
         else:
             value = float("inf")
-            # get possible moves for the node
+            # Get possible moves for the node
             # Value = the min b/w value and a recursive call to the alpha beta:
             for move in allValidMoves:
                 value = min(value, self.minimax(self.nextBoard(node, side, move), self.side, depth - 1, alpha, beta, True))
@@ -60,41 +63,66 @@ class MinimaxPlayer(Konane, Player):
                 # Calculate the weight of the move based on what our minimizing opponent will do
                 moveWeight = self.minimax(self.nextBoard(board, self.side, move), self.opponent(self.side), self.limit - 1, bestMove[0], float("inf"), False)
                 # Replace the best move if it obtains a higher score
-                if (moveWeight > bestMove[0]):
+                if moveWeight > bestMove[0]:
                     bestMove[0] = moveWeight
                     bestMove[1] = move
+            # Defeat conditional: select the first move if we have no winning options
+            if bestMove[1] == None:
+                return moves[0]
+            # Otherwise, return the best move that we found
             return bestMove[1]
-                
-    # 
+
+    # "Jumpable neighbors" heuristic
+    # Aim is to have more pieces that can jump in the future than opponent
+    # Does not ignore walls, ignores pieces in the way and multi jumps
+    # Positive score = more jumps than opponent. Negative = less (losing).
     def eval(self, board):
         count = 0
         # Loop through the valid range within the grid (so we don't hit edges)
-        for i in range(self.size - 4):
-            row = i + 2
-            for j in range(self.size - 4):
-                col = j + 2
-
+        for row in range(self.size):
+            for col in range(self.size):
+                # Get current piece to check its opponent for viability
                 currentPiece = board[row][col]
-                isOurPiece = currentPiece == self.side
+                # Only affect heuristic count if there's a valid piece
+                if currentPiece != ".":
+                    # North jump check--must be row 2 or higher, must have a piece to jump
+                    northIsViable = False
+                    if row >= 2:
+                        northPiece = board[row - 1][col]
+                        northIsViable = northPiece == self.opponent(currentPiece)
 
-                northPiece = board[row + 1][col]
-                northIsViable = northPiece == self.opponent(self.side)
+                    # East jump check--must be col 5 or lower, must have a piece to jump
+                    eastIsViable = False
+                    if col <= 5:
+                        eastPiece = board[row][col + 1]
+                        eastIsViable = eastPiece == self.opponent(currentPiece)
 
-                eastPiece = board[row][col + 1]
-                eastIsViable = eastPiece == self.opponent(self.side)
+                    # South jump check--must be row 5 or lower, must have a piece to jump
+                    southIsViable = False 
+                    if row <= 5:
+                        southPiece = board[row + 1][col]
+                        southIsViable = southPiece == self.opponent(currentPiece)
 
-                southPiece = board[row + 1][col]
-                southIsViable = southPiece == self.opponent(self.side)
+                    # West jump check--must be col 2 or higher, must have a piece to jump
+                    westIsViable = False 
+                    if col >= 2:
+                        westPiece = board[row][col - 1]
+                        westIsViable = westPiece == self.opponent(currentPiece)
 
-                westPiece = board[row][col - 1]
-                westIsViable = westPiece == self.opponent(self.side)
-                
-                count += 1 if isOurPiece and northIsViable else 0
-                count += 1 if isOurPiece and eastIsViable else 0
-                count += 1 if isOurPiece and southIsViable else 0
-                count += 1 if isOurPiece and westIsViable else 0
+                    # Add if it's our piece, subtract if it isn't
+                    if currentPiece == self.side:
+                        count += 1 if northIsViable else 0
+                        count += 1 if eastIsViable else 0
+                        count += 1 if southIsViable else 0
+                        count += 1 if westIsViable else 0
+                    else:
+                        count -= 1 if northIsViable else 0
+                        count -= 1 if eastIsViable else 0
+                        count -= 1 if southIsViable else 0
+                        count -= 1 if westIsViable else 0
+        # Return heuristic stored in count
         return count
 
-game = Konane(8) 
-game.playOneGame(RandomPlayer(8), RandomPlayer(8), 1)
-game.playNGames(2, MinimaxPlayer(8, 2), MinimaxPlayer(8, 1), 0)
+# game = Konane(8) 
+# game.playOneGame(RandomPlayer(8), RandomPlayer(8), 1)
+game.playNGames(10, MinimaxPlayer(8, 4), RandomPlayer(8), 0)

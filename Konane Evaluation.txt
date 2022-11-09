@@ -1,0 +1,28 @@
+Konane Evaluation
+Authors: Briar Sauble and Robert Bunning
+
+The heuristic we used for the evaluation function of our MinimaxPlayer, dubbed
+"Super Minimax Deluxe", is a jumpable neighbors count. Given a board, each part
+on the board that has a piece is analyzed in order to see if it can made a 
+jump. This check simplifies the rules of the game to not take into 
+consideration a piece being two pieces away to block a jump, as the value 
+being considered is if the piece could potentially have jumps in the future.
+It also does not take into consideration cases where a multiple jump could 
+occur in order to prevent possible heuristic skews. If the current piece 
+being looked at is one of our own, the heuristic adds 1 for each jump the
+piece could do given our simplified ruleset--and on the contrary, the
+opponent's jumps will subtract from the heuristic. 
+
+The idea of the heuristic is to maximize the amount of possible jumps that 
+our pieces could have. Ideally, if the pieces on our side of the board
+are correctly moved so that they are less likely to lead to "dead pieces", or
+pieces on the board that can't be used for jumps, then we will be more likely 
+to win the match. A positive score given for a board in this instance with this 
+assumption is that we are winning, since the amount of jumps that we're holding 
+on this board is beating out the opponents. If it's negative, we're losing, and 
+we want to try getting back to a positive value to win over an opponent. This 
+assumption on the best features to focus on comes from the basic rules of the 
+game--to lose, you must run out of valid moves, so it would be for the best 
+to have pieces be in spaces where they won't run out of moves. This is not 
+always true, but this assumption allows for a simplistic evaluation without the
+use of deeper learning to, in the best case, win against an opponent.
