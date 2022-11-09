@@ -68,17 +68,33 @@ class MinimaxPlayer(Konane, Player):
     # 
     def eval(self, board):
         count = 0
-        for row in range(self.size):
-            for col in range(self.size):
-                # Check left (Can we go left?)
-                if row > 2 and board[row - 1][col] != '.' and board[row - 1][col] == self.opponent(self.side):
-                    count += 1
-                # Check right
-                    
-        # We don't care what this does yet, just make it eval something as a test
-        # Having pieces on the board that still have valid moves
-        return random.randint(0, 9)
+        # Loop through the valid range within the grid (so we don't hit edges)
+        for i in range(self.size - 4):
+            row = i + 2
+            for j in range(self.size - 4):
+                col = j + 2
 
-# game = Konane(8) 
-# game.playOneGame(RandomPlayer(8), RandomPlayer(8), 1)
-# game.playNGames(2, MinimaxPlayer(8, 2), MinimaxPlayer(8, 1), 0)
+                currentPiece = board[row][col]
+                isOurPiece = currentPiece == self.side
+
+                northPiece = board[row + 1][col]
+                northIsViable = northPiece != '.' and northPiece == self.opponent(self.side)
+
+                eastPiece = board[row][col + 1]
+                eastIsViable = eastPiece != '.' and eastPiece == self.opponent(self.side)
+
+                southPiece = board[row + 1][col]
+                southIsViable = southPiece != '.' and southPiece == self.opponent(self.side)
+
+                westPiece = board[row][col - 1]
+                westIsViable = westPiece != '.' and westPiece == self.opponent(self.side)
+                
+                count += 1 if isOurPiece and northIsViable else 0
+                count += 1 if isOurPiece and eastIsViable else 0
+                count += 1 if isOurPiece and southIsViable else 0
+                count += 1 if isOurPiece and westIsViable else 0
+        return count
+
+game = Konane(8) 
+game.playOneGame(RandomPlayer(8), RandomPlayer(8), 1)
+game.playNGames(2, MinimaxPlayer(8, 2), MinimaxPlayer(8, 1), 0)
