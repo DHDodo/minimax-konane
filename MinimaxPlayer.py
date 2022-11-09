@@ -74,25 +74,22 @@ class MinimaxPlayer(Konane, Player):
             for j in range(self.size - 4):
                 col = j + 2
 
-                currentPiece = board[row][col]
-                isOurPiece = currentPiece == self.side
-
                 northPiece = board[row + 1][col]
-                northIsViable = northPiece != '.' and northPiece == self.opponent(self.side)
+                northIsViable = northPiece == self.opponent(self.side)
 
                 eastPiece = board[row][col + 1]
-                eastIsViable = eastPiece != '.' and eastPiece == self.opponent(self.side)
+                eastIsViable = eastPiece == self.opponent(self.side)
 
                 southPiece = board[row + 1][col]
-                southIsViable = southPiece != '.' and southPiece == self.opponent(self.side)
+                southIsViable = southPiece == self.opponent(self.side)
 
                 westPiece = board[row][col - 1]
-                westIsViable = westPiece != '.' and westPiece == self.opponent(self.side)
+                westIsViable = westPiece == self.opponent(self.side)
                 
-                count += 1 if isOurPiece and northIsViable else 0
-                count += 1 if isOurPiece and eastIsViable else 0
-                count += 1 if isOurPiece and southIsViable else 0
-                count += 1 if isOurPiece and westIsViable else 0
+                count += 1 if northIsViable else 0
+                count += 1 if eastIsViable else 0
+                count += 1 if southIsViable else 0
+                count += 1 if westIsViable else 0
         return count
 
 game = Konane(8) 
