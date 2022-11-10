@@ -1,18 +1,14 @@
-## Filename: MinimaxPlayer.py
-## Authors: Briar Sauble and Robert Bunning
-
 from konane import *
 
-# float("inf") or -float("inf") indicate no more moves
-class MinimaxPlayer(Konane, Player):    
-    
+class hhhPlayer(Konane, Player):
+      
     def __init__(self, size, depthLimit):
         Konane.__init__(self, size)
         self.limit = depthLimit
 
     def initialize(self, side):
         self.side = side
-        self.name = "Super Minimax Deluxe"
+        self.name = "hhh"
 
     # Performs alpha-beta pruning to determine the most optimal board for a given player.
     # Node refers to a board
@@ -72,54 +68,7 @@ class MinimaxPlayer(Konane, Player):
             # Otherwise, return the best move that we found
             return bestMove[1]
 
-    # "Jumpable neighbors" heuristic
-    # Aim is to have more pieces that can jump in the future than opponent
-    # Does not ignore walls, ignores pieces in the way and multi jumps
-    # Positive score = more jumps than opponent. Negative = less (losing).
-    def eval(self, board):
-        count = 0
-        # Loop through the valid range within the grid (so we don't hit edges)
-        for row in range(self.size):
-            for col in range(self.size):
-                # Get current piece to check its opponent for viability
-                currentPiece = board[row][col]
-                # Only affect heuristic count if there's a valid piece
-                if currentPiece != ".":
-                    # North jump check--must be row 2 or higher, must have a piece to jump
-                    northIsViable = False
-                    if row >= 2:
-                        northPiece = board[row - 1][col]
-                        northIsViable = northPiece == self.opponent(currentPiece)
-
-                    # East jump check--must be col 5 or lower, must have a piece to jump
-                    eastIsViable = False
-                    if col <= 5:
-                        eastPiece = board[row][col + 1]
-                        eastIsViable = eastPiece == self.opponent(currentPiece)
-
-                    # South jump check--must be row 5 or lower, must have a piece to jump
-                    southIsViable = False 
-                    if row <= 5:
-                        southPiece = board[row + 1][col]
-                        southIsViable = southPiece == self.opponent(currentPiece)
-
-                    # West jump check--must be col 2 or higher, must have a piece to jump
-                    westIsViable = False 
-                    if col >= 2:
-                        westPiece = board[row][col - 1]
-                        westIsViable = westPiece == self.opponent(currentPiece)
-
-                    # Add if it's our piece, subtract if it isn't
-                    if currentPiece == self.side:
-                        count += 1 if northIsViable else 0
-                        count += 1 if eastIsViable else 0
-                        count += 1 if southIsViable else 0
-                        count += 1 if westIsViable else 0
-                    else:
-                        count -= 1 if northIsViable else 0
-                        count -= 1 if eastIsViable else 0
-                        count -= 1 if southIsViable else 0
-                        count -= 1 if westIsViable else 0
-        # Return heuristic stored in count
-        return count
-        
+    # My possible moves - enemy's possible moves heuristic
+    # Considers the # of moves the board affords to the player - the # of moves it affords to the enemy
+    def eval(self, board):        
+        return len(self.generateMoves(board, self.side)) - len(self.generateMoves(board, self.opponent(self.side)))

@@ -1,5 +1,7 @@
 from konane import *
 from MinimaxPlayer import *
+from vvvPlayer import *
+from hhhPlayer import *
 from multiprocessing import Pool
 import time
 
@@ -32,9 +34,26 @@ def playNGamesParallel(n, player1Func, player2Func, boardSize):
     
 def createMinimaxPlayer(boardSize, depthCutoff):
     return lambda: MinimaxPlayer(boardSize, depthCutoff)
+    
+def createvvvPlayer(boardSize, depthCutoff):
+    return lambda: vvvPlayer(boardSize, depthCutoff)
+    
+def createhhhPlayer(boardSize, depthCutoff):
+    return lambda: hhhPlayer(boardSize, depthCutoff)
 
 def createRandomPlayer(boardSize):
     return lambda: RandomPlayer(boardSize)
 
 if __name__ == "__main__":
-    playNGamesParallel(6, createMinimaxPlayer(8, 4), createRandomPlayer(8), 8)
+    # All of these tests take about 4 minutes on my computer
+    # Serially, 10 games of hhh vs vvv takes about 3.33 minutes on my computer
+    startTime = time.time()
+    playNGamesParallel(10, createMinimaxPlayer(8, 4), createhhhPlayer(8, 4), 8)
+    playNGamesParallel(10, createMinimaxPlayer(8, 4), createvvvPlayer(8, 4), 8)
+    playNGamesParallel(10, createMinimaxPlayer(8, 4), createRandomPlayer(8), 8)
+
+    playNGamesParallel(10, createvvvPlayer(8, 4), createhhhPlayer(8, 4), 8)
+    playNGamesParallel(10, createvvvPlayer(8, 4), createRandomPlayer(8), 8)
+
+    playNGamesParallel(10, createhhhPlayer(8, 4), createRandomPlayer(8), 8)
+    print("All tests took", (time.time() - startTime), "second(s)")
