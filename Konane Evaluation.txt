@@ -2,27 +2,35 @@ Konane Evaluation
 Authors: Briar Sauble and Robert Bunning
 
 The heuristic we used for the evaluation function of our MinimaxPlayer, dubbed
-"Super Minimax Deluxe", is a jumpable neighbors count. Given a board, each part
-on the board that has a piece is analyzed in order to see if it can made a 
-jump. This check simplifies the rules of the game to not take into 
-consideration a piece being two pieces away to block a jump, as the value 
-being considered is if the piece could potentially have jumps in the future.
-It also does not take into consideration cases where a multiple jump could 
-occur in order to prevent possible heuristic skews. If the current piece 
-being looked at is one of our own, the heuristic adds 1 for each jump the
-piece could do given our simplified ruleset--and on the contrary, the
-opponent's jumps will subtract from the heuristic. 
+"Super Minimax Deluxe," takes the count of moves the current player has on the board and 
+subtracts the number of moves the opponent has. I'll call it "all moves considered."
 
-The idea of the heuristic is to maximize the amount of possible jumps that 
-our pieces could have. Ideally, if the pieces on our side of the board
-are correctly moved so that they are less likely to lead to "dead pieces", or
-pieces on the board that can't be used for jumps, then we will be more likely 
-to win the match. A positive score given for a board in this instance with this 
-assumption is that we are winning, since the amount of jumps that we're holding 
-on this board is beating out the opponents. If it's negative, we're losing, and 
-we want to try getting back to a positive value to win over an opponent. This 
-assumption on the best features to focus on comes from the basic rules of the 
-game--to lose, you must run out of valid moves, so it would be for the best 
-to have pieces be in spaces where they won't run out of moves. This is not 
-always true, but this assumption allows for a simplistic evaluation without the
-use of deeper learning to, in the best case, win against an opponent.
+We experimented with a few different heuristics and found that this one worked best.
+
+Originally, we went with a "jumpable neighbors count". The heuristic worked like this: 
+Given a board, each part on the board that has a piece is analyzed in order 
+to see if it can make a jump. This did not consider valid moves, just all of 
+the enemy pieces neighboring yours that could be jumped. 
+
+The problem we found with this heuristic was given how the pieces
+were laid out on the board and that this was a turn based game, most boards would be 
+ranked about the same. 
+
+We also tried the following other heuristics:
+	- One that only returns the count of moves a board gives the player
+		- I'll call this "player moves only"
+	- One that returns the "jumpable neighbors count" + the estimate of "all moves considered"
+		- I'll call this "jumpable neighbors + all moves considered"
+
+To test and see which one stood apart from the others, we ran 10 games of each against one another.
+We found these results:
+	- "jumpable neighbors count" vs "player moves only" -> "player moves only" wins 100% of the time
+	- "jumpable neighbors count" vs "all moves considered" -> "all moves considered" wins 100% of the time
+	- "player moves only" vs "all moves considered" -> "all moves considered" wins 100% of the time
+	- "jumpable neighbors + all moves considered" vs "player moves only" -> "jumpable neighbors + all moves considered" wins 100% of the time
+	- "jumpable neighbors + all moves considered" vs "all moves considered" -> "all moves considered" wins 100% of the time
+
+We found "all moves considered" to be the best heuristic. It always beats the other heuristics we put it up against.
+I think this makes sense. In Konane, running out of moves means it is game over for you. Having less moves than your 
+opponent is bad since it means your opponent is closer to winning. Our heuristic takes this into consideration in the 
+value it returns. 
